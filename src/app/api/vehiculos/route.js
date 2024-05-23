@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from "@/lib/prisma";
+import { writeFile } from "fs/promises";
+import path from "path";
 
 export async function GET() {
   try {
@@ -15,16 +17,27 @@ export async function GET() {
 
 export async function POST(request) {
   try {
-    const data = await request.json();
+    const data = await request.formData();
+    const file = data.get("imagen");
+
+    if (!file) {
+      return new NextResponse("No image found", { status: 400 });
+    }
+
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+
+    const filePath = path.join(process.cwd(), "public", file.name);
+    await writeFile(filePath, buffer);
 
     const vehiculo = await prisma.vehiculos.create({
       data: {
-        modelo: data.modelo,
-        precio: parseInt(data.precio),
-        stock: parseInt(data.stock),
-        descripcion: data.descripcion,
-        imagen: data.imagen,
-        tipo_id: data.tipo_id
+        modelo: data.get("modelo"),
+        precio: parseInt(data.get("precio")),
+        stock: parseInt(data.get("stock")),
+        descripcion: data.get("descripcion"),
+        imagen: file.name,
+        tipo_id: parseInt(data.get("tipo_id"))
       }
     });
     

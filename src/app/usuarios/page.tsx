@@ -28,16 +28,17 @@ export default function Home() {
     gender: "",
   });
 
-  useEffect(() => {
-    async function get() {
-      try {
-        const res = await axios.get("/api/usuarios");
-        setUsuarios(res.data.data);
-      } catch (error) {
-        console.log("error", error);
-      }
+  const fetchUsuarios = async () => {
+    try {
+      const res = await axios.get("/api/usuarios");
+      setUsuarios(res.data.data);
+    } catch (error) {
+      console.log("error", error);
     }
-    get();
+  }
+
+  useEffect(() => {
+    fetchUsuarios();
   }, []);
 
   const handleUpdate = (usuario: Usuario) => {
@@ -83,6 +84,7 @@ export default function Home() {
         setIsModalOpen(false);
         setIsEditing(false);
         setCurrentUsuarioId(null);
+        fetchUsuarios();
       } catch (error) {
         console.error("Error al actualizar el usuario:", error);
       }

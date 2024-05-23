@@ -1,6 +1,7 @@
 import React, { ChangeEvent, FormEvent } from "react";
 import styles from "../vehiculos/vehiculo.module.css";
-import FormLabel from "../Components/FormLabel";
+import FormLabel from "./FormLabel";
+import CancelButton from "./CancelButton";
 
 type ModalProps = {
   isModalOpen: boolean;
@@ -66,8 +67,9 @@ const VehiculosModal: React.FC<ModalProps> = ({
                 value={newVehiculo.descripcion}
                 onChange={handleInputChange}
                 required
+                data-tip="Ingrese una descripción del vehículo"
               />
-              <label>
+              <label data-tip="Seleccione una imagen del vehículo">
                 Imagen:
                 <input
                   type="file"
@@ -89,9 +91,7 @@ const VehiculosModal: React.FC<ModalProps> = ({
                 ]}
               />
               <button type="submit">{isEditing ? "Actualizar Vehículo" : "Añadir Vehículo"}</button>
-              <button type="button" onClick={closeModal}>
-                Cancelar
-              </button>
+              <CancelButton onClick={closeModal} />
             </form>
           </div>
         </div>

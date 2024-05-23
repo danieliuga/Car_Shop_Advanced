@@ -6,20 +6,6 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-
-model tipos {
-  id        Int         @id @default(autoincrement())
-  nombre    String      @db.VarChar(255)
-  vehiculos vehiculos[]
-}
-
-model users {
-  id       Int    @id @default(autoincrement())
-  name     String @db.VarChar(255)
-  email    String @db.VarChar(255)
-  password String @db.VarChar(255)
-}
-
 model vehiculos {
   id          Int     @id @default(autoincrement())
   modelo      String  @db.VarChar(255)
@@ -27,8 +13,7 @@ model vehiculos {
   stock       Int
   descripcion String?
   imagen      String? @db.VarChar(255)
-  tipo_id     Int?
-  tipos       tipos?  @relation(fields: [tipo_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  tipo_id     Int
 }
 
 model usuarios {

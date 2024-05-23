@@ -14,7 +14,7 @@ type Vehiculo = {
   precio: number;
   stock: number;
   descripcion: string;
-  imagen: string;
+  imagen: File | string;
   tipo_id: number;
 };
 
@@ -22,6 +22,7 @@ export default function Home() {
   const [vehiculos, setVehiculos] = useState<Vehiculo[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [fileImage, setFileImage] = useState<File | null>(null);
   const [currentVehiculoId, setCurrentVehiculoId] = useState<number | null>(null);
   const [newVehiculo, setNewVehiculo] = useState({
     modelo: "",
@@ -32,19 +33,20 @@ export default function Home() {
     tipo_id: 1,
   });
 
-  useEffect(() => {
-    async function fetchVehiculos() {
-      try {
-        const res = await axios.get("/api/vehiculos");
-        const vehiculosWithImage = res.data.data.map((vehiculo: any) => ({
-          ...vehiculo,
-          imagen: vehiculo.imagen || 'default-image-path.jpg',
-        }));
-        setVehiculos(vehiculosWithImage);
-      } catch (error) {
-        console.error("Error fetching vehiculos:", error);
-      }
+  const fetchVehiculos = async () => {
+    try {
+      const res = await axios.get("/api/vehiculos");
+      const vehiculosWithImage = res.data.data.map((vehiculo: any) => ({
+        ...vehiculo,
+        imagen: vehiculo.imagen || 'default-image-path.jpg',
+      }));
+      setVehiculos(vehiculosWithImage);
+    } catch (error) {
+      console.error("Error fetching vehiculos:", error);
     }
+  };
+
+  useEffect(() => {
     fetchVehiculos();
   }, []);
 
@@ -82,53 +84,78 @@ export default function Home() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
-      const fileName = files[0].name;
-      setNewVehiculo({
-        ...newVehiculo,
-        imagen: fileName,
-      });
-    }
-  }; 
+      const file = files[0];
+      setFileImage(file)
+      const reader = new FileReader();
   
+      reader.onload = (event) => {
+        if (event.target && event.target.result) {
+          const dataURL = event.target.result as string;
+  
+          setNewVehiculo({
+            ...newVehiculo,
+            imagen: dataURL,
+          });
+          
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    let imageUrl = newVehiculo.imagen;
-    console.log('Image URL: ' + imageUrl);
-
-    const vehiculoData = { ...newVehiculo, imagen: imageUrl};
-
-    if (isEditing && currentVehiculoId !== null) {
-      try {
-        const updatedVehiculo = await updateVehicle({
-          id: currentVehiculoId,
-          ...vehiculoData,
-        });
-        setVehiculos(vehiculos.map((vehiculo) =>
-          vehiculo.id === currentVehiculoId ? updatedVehiculo : vehiculo
-        ));
-        setIsModalOpen(false);
-        setIsEditing(false);
-        setCurrentVehiculoId(null);
-      } catch (error) {
-        console.error("Error al actualizar el vehículo:", error);
-      }
-    } else {
-      try {
-        const res = await axios.post("/api/vehiculos", vehiculoData);
-        setVehiculos([...vehiculos, res.data.data]);
-        setIsModalOpen(false);
-        setNewVehiculo({
-          modelo: "",
-          precio: 0,
-          stock: 0,
-          descripcion: "",
-          imagen: "",
-          tipo_id: 1,
-        });
-      } catch (error) {
-        console.error("Error al añadir el vehículo:", error);
-      }
+  
+    if (!newVehiculo.modelo || !newVehiculo.precio || !newVehiculo.stock || !newVehiculo.descripcion || !newVehiculo.tipo_id) {
+      console.log("Por favor complete todos los campos");
+      return;
+    }
+  
+    const formData = new FormData();
+    formData.append("modelo", newVehiculo.modelo);
+    formData.append("precio", newVehiculo.precio.toString());
+    formData.append("stock", newVehiculo.stock.toString());
+    formData.append("descripcion", newVehiculo.descripcion);
+    formData.append("tipo_id", newVehiculo.tipo_id.toString());
+    if (fileImage) {
+      formData.append("imagen", fileImage);
+    }
+    console.log(formData.get("imagen"));
+    
+    try {
+      const res = isEditing && currentVehiculoId !== null
+        ? await axios.put(`/api/vehiculos/${currentVehiculoId}`, formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          })
+        : await axios.post("/api/vehiculos", formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          });
+  
+      setVehiculos(
+        isEditing && currentVehiculoId !== null
+          ? vehiculos.map((vehiculo) =>
+              vehiculo.id === currentVehiculoId ? res.data.data : vehiculo
+            )
+          : [...vehiculos, res.data.data]
+      );
+      setIsModalOpen(false);
+      setNewVehiculo({
+        modelo: "",
+        precio: 0,
+        stock: 0,
+        descripcion: "",
+        imagen: "",
+        tipo_id: 1,
+      });
+      setIsEditing(false);
+      setCurrentVehiculoId(null);
+      fetchVehiculos();
+    } catch (error) {
+      console.error(`Error al ${isEditing ? "actualizar" : "añadir"} el vehículo:`, error);
     }
   };
 

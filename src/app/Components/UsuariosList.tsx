@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from '../usuarios/usuario.module.css';
+import HandleButtons from '../Components/HandleButtons';
 
 type Usuario = {
   id: number;
@@ -25,20 +26,10 @@ const UsuariosList: React.FC<UsuariosListProps> = ({ usuarios, handleUpdate, han
             <p className={styles.info}>Email: {usuario.email}</p>
             <p className={styles.info}>Dinero: {usuario.money}</p>
             <p className={styles.info}>Género: {usuario.gender}</p>
-            <div className={styles.buttons}>
-              <button
-                onClick={() => handleUpdate(usuario)}
-                className={styles.updateButton}
-              >
-                Update
-              </button>
-              <button
-                onClick={() => handleDelete(usuario.id)}
-                className={styles.deleteButton}
-              >
-                Delete
-              </button>
-            </div>
+            <HandleButtons
+              onUpdate={() => handleUpdate(usuario)}
+              onDelete={() => handleDelete(usuario.id)}
+            />
           </div>
         </div>
       ))}
