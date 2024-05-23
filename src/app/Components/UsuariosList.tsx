@@ -1,6 +1,7 @@
 import React from 'react';
 import styles from '../usuarios/usuario.module.css';
 import HandleButtons from '../Components/HandleButtons';
+import { CiCreditCard1 } from "react-icons/ci";
 
 type Usuario = {
   id: number;
@@ -24,7 +25,7 @@ const UsuariosList: React.FC<UsuariosListProps> = ({ usuarios, handleUpdate, han
           <div className={styles.cardContent}>
             <h2 className={styles.name}>{usuario.name}</h2>
             <p className={styles.info}>Email: {usuario.email}</p>
-            <p className={styles.info}>Dinero: {usuario.money}</p>
+            <p className={styles.info}>Dinero: {usuario.money} <CiCreditCard1 /></p>
             <p className={styles.info}>Género: {usuario.gender}</p>
             <HandleButtons
               onUpdate={() => handleUpdate(usuario)}

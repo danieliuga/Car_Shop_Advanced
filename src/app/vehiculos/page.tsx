@@ -1,12 +1,13 @@
 "use client"
 import axios from "axios";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import styles from "./vehiculo.module.css";
 import deleteVehicle, { updateVehicle } from "@/lib/dataQuery";
 import VolverAtras from "../Components/volverAtras";
 import VehiculosModal from "../Components/VehiculosModal";
 import VehiculosList from "../Components/VehiculosList";
+import { IoCarSport } from "react-icons/io5";
+import { GiFullMotorcycleHelmet } from "react-icons/gi";
 
 type Vehiculo = {
   id: number;
@@ -162,7 +163,7 @@ export default function Home() {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <h1 className={styles.title}>Lista de Vehículos</h1>
+        <h1 className={styles.title}><GiFullMotorcycleHelmet /> Lista de Vehículos <IoCarSport /></h1>
         <button
           onClick={() => {
             setIsEditing(false);

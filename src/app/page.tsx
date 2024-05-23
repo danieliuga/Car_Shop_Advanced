@@ -1,11 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
+import { FaCar } from "react-icons/fa";
 
 export default function Home() {
   return (
     <div className="App">
       <header className="header">
-        <h1 className="title">IUGA Shop</h1>
+        <h1 className="title">IUGA Shop <FaCar /></h1>
       </header>
       <div className='vehiculos-container'>
         <div className='vehiculosContent'>
