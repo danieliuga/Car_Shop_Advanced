@@ -124,6 +124,8 @@ export default function Home() {
     console.log(formData.get("imagen"));
     
     try {
+      console.log('currentVehiculoId: ' , currentVehiculoId);
+
       const res = isEditing && currentVehiculoId !== null
         ? await axios.put(`/api/vehiculos/${currentVehiculoId}`, formData, {
             headers: {
